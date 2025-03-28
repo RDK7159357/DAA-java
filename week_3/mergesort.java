@@ -1,6 +1,4 @@
 package week_3;
-
-
 import java.util.Scanner;
 import java.util.Arrays;
 public class mergesort {

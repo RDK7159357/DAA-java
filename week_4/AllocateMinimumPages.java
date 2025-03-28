@@ -1,7 +1,4 @@
 package week_4;
-
-
-
 public class AllocateMinimumPages {
 
     // Function to check if it is possible to allocate books such that no student reads more than 'maxPages'
