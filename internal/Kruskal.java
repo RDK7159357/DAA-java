@@ -31,7 +31,9 @@ public class Kruskal {
         
         int totalCost = 0;
         int edgesUsed = 0;
+        List<Edge> mstEdges = new ArrayList<>();
         
+        System.out.println("MST Edges:");
         for (Edge edge : edges) {
             int rootU = find(parent, edge.u);
             int rootV = find(parent, edge.v);
@@ -39,6 +41,8 @@ public class Kruskal {
             if (rootU != rootV) {
                 totalCost += edge.w;
                 parent[rootU] = rootV;
+                mstEdges.add(edge);
+                System.out.println("Edge: " + edge.u + " - " + edge.v + " (weight: " + edge.w + ")");
                 edgesUsed++;
                 
                 if (edgesUsed == n - 1) break; // MST complete
@@ -57,6 +61,7 @@ public class Kruskal {
             new Edge(2, 3, 4)
         );
         
-        System.out.println("MST Cost: " + kruskal(4, edges));
+        int totalCost = kruskal(4, edges);
+        System.out.println("\nTotal MST Cost: " + totalCost);
     }
 }
