@@ -1,59 +1,43 @@
 package internal;
 
+import java.util.*;
+
 public class GraphColoring {
-    private final int V = 4;
-    private int[] color = new int[V];
     
+    static boolean colorGraph(int[][] graph, int colors) {
+        int n = graph.length;
+        int[] color = new int[n];
+        return solve(graph, colors, 0, color);
+    }
     
-    // Recursive backtracking to color vertices
-    private boolean solve(int[][] graph, int m, int v) {
-        if (v == V) {
-            printSolution();
+    static boolean solve(int[][] graph, int maxColors, int vertex, int[] color) {
+        if (vertex == graph.length) {
+            System.out.println("Solution: " + Arrays.toString(color));
             return true;
         }
         
-        for (int c = 1; c <= m; c++) {
-            if (isSafe(graph,v, c)) {
-                color[v] = c;
-                if (solve(graph, m, v + 1)) {
+        for (int c = 1; c <= maxColors; c++) {
+            if (isSafe(graph, vertex, c, color)) {
+                color[vertex] = c;
+                if (solve(graph, maxColors, vertex + 1, color)) {
                     return true;
                 }
-                color[v] = 0; // backtrack
+                color[vertex] = 0; // backtrack
             }
         }
         return false;
     }
     
-    // Check if vertex v can be colored with color c
-    private boolean isSafe(int[][] graph,int v, int c) {
-        for (int u = 0; u < V; u++) {
-            if (graph[v][u] == 1 && color[u] == c) {
+    static boolean isSafe(int[][] graph, int vertex, int c, int[] color) {
+        for (int i = 0; i < graph.length; i++) {
+            if (graph[vertex][i] == 1 && color[i] == c) {
                 return false;
             }
         }
         return true;
     }
-    // Main method to solve graph coloring
-    public boolean colorGraph(int[][] graph, int m) {
-        if (solve(graph, m, 0)) {
-            return true;
-        }
-        System.out.println("No solution exists");
-        return false;
-    }
-    
-    // Print the solution
-    private void printSolution() {
-        System.out.print("Solution: ");
-        for (int i = 0; i < V; i++) {
-            System.out.print(color[i] + " ");
-        }
-        System.out.println();
-    }
     
     public static void main(String[] args) {
-        GraphColoring solver = new GraphColoring();
-        
         int[][] graph = {
             {0, 1, 1, 1},
             {1, 0, 1, 0},
@@ -61,6 +45,8 @@ public class GraphColoring {
             {1, 0, 1, 0}
         };
         
-        solver.colorGraph(graph, 3);
+        if (!colorGraph(graph, 3)) {
+            System.out.println("No solution exists");
+        }
     }
 }
