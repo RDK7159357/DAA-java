@@ -1,4 +1,4 @@
-package week_9;
+package internal;
 
 public class HamiltonianCycle {
     private final int V = 5;

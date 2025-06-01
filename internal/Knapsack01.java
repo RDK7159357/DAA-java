@@ -1,4 +1,4 @@
-package week_7;
+package internal;
 
 public class Knapsack01 {
     

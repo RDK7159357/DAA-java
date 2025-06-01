@@ -1,4 +1,4 @@
-package week_9;
+package internal;
 public class EightQueens {
     static int N = 8;
     

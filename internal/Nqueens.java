@@ -1,4 +1,4 @@
-package week_11;
+package internal;
 
 // Branch and bound
 public class Nqueens {

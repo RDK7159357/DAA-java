@@ -1,4 +1,4 @@
-package week_9;
+package internal;
 
 public class GraphColoring {
     private final int V = 4;

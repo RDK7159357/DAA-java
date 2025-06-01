@@ -1,4 +1,4 @@
-package section1;
+package internal;
 
 class Node {
     int data;

@@ -1,4 +1,4 @@
-package week_8;
+package internal;
 
 class MatrixChainMultiplication {
     
