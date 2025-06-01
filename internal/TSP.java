@@ -2,118 +2,82 @@ package internal;
 
 import java.util.*;
 
-class TSP{
-    static int N = 4;
-    static int[] final_path = new int[N + 1];
-    static boolean[] visited = new boolean[N];
-    static int final_res = Integer.MAX_VALUE;
-
-    // copy current best path to final_path
-    static void copyToFinal(int[] curr_path) {
-        System.arraycopy(curr_path, 0, final_path, 0, N);
-        final_path[N] = curr_path[0];
-    }
-
-    // first minimum edge cost from vertex i
-    static int firstMin(int[][] adj, int i) {
-        int min = Integer.MAX_VALUE;
-        for (int k = 0; k < N; k++)
-            if (adj[i][k] < min && i != k)
-                min = adj[i][k];
-        return min;
-    }
-
-    // second minimum edge cost from vertex i
-    static int secondMin(int[][] adj, int i) {
-        int first = Integer.MAX_VALUE, second = Integer.MAX_VALUE;
-        for (int j = 0; j < N; j++) {
-            if (i == j) continue;
-            int cost = adj[i][j];
-            if (cost <= first) {
-                second = first;
-                first = cost;
-            } else if (cost < second) {
-                second = cost;
+public class TSP {
+    static int n, minCost = Integer.MAX_VALUE;
+    static int[] bestPath;
+    static boolean[] visited;
+    
+    static int getMinEdge(int[][] adj, int vertex, boolean excludeFirst) {
+        int min1 = Integer.MAX_VALUE, min2 = Integer.MAX_VALUE;
+        for (int i = 0; i < n; i++) {
+            if (i != vertex && adj[vertex][i] > 0) {
+                if (adj[vertex][i] < min1) {
+                    min2 = min1;
+                    min1 = adj[vertex][i];
+                } else if (adj[vertex][i] < min2) {
+                    min2 = adj[vertex][i];
+                }
             }
         }
-        return second;
+        return excludeFirst ? min2 : min1;
     }
-
-    // recursive branch-and-bound
-    static void TSPRec(int[][] adj, int curr_bound, int curr_weight,
-                       int level, int[] curr_path) {
-        if (level == N) {
-            // check last to first edge
-            if (adj[curr_path[level - 1]][curr_path[0]] != 0) {
-                int res = curr_weight + adj[curr_path[level - 1]][curr_path[0]];
-                if (res < final_res) {
-                    copyToFinal(curr_path);
-                    final_res = res;
+    
+    static void solve(int[][] adj, int[] path, int level, int cost, int bound) {
+        if (level == n) {
+            if (adj[path[n-1]][0] > 0) {
+                int totalCost = cost + adj[path[n-1]][0];
+                if (totalCost < minCost) {
+                    minCost = totalCost;
+                    bestPath = Arrays.copyOf(path, n + 1);
+                    bestPath[n] = 0;
                 }
             }
             return;
         }
-
-        for (int i = 0; i < N; i++) {
-            if (adj[curr_path[level - 1]][i] != 0 && !visited[i]) {
-                int temp = curr_bound;
-                curr_weight += adj[curr_path[level - 1]][i];
-
-                // compute new bound
-                if (level == 1) {
-                    curr_bound -= (firstMin(adj, curr_path[level - 1])
-                                 + firstMin(adj, i)) / 2;
-                } else {
-                    curr_bound -= (secondMin(adj, curr_path[level - 1])
-                                 + firstMin(adj, i)) / 2;
-                }
-
-                if (curr_bound + curr_weight < final_res) {
-                    curr_path[level] = i;
+        
+        for (int i = 1; i < n; i++) {
+            if (!visited[i] && adj[path[level-1]][i] > 0) {
+                int newCost = cost + adj[path[level-1]][i];
+                int newBound = bound - (getMinEdge(adj, path[level-1], level > 1) + 
+                                      getMinEdge(adj, i, false)) / 2;
+                
+                if (newBound + newCost < minCost) {
+                    path[level] = i;
                     visited[i] = true;
-                    TSPRec(adj, curr_bound, curr_weight, level + 1, curr_path);
+                    solve(adj, path, level + 1, newCost, newBound);
+                    visited[i] = false;
                 }
-
-                // backtrack
-                curr_weight -= adj[curr_path[level - 1]][i];
-                curr_bound = temp;
-                Arrays.fill(visited, level, level + 1, false); // reset visit of i
-                visited[curr_path[level - 1]] = true;
             }
         }
     }
-
-    // sets up initial bound and calls TSPRec
-    static void solveTSP(int[][] adj) {
-        int[] curr_path = new int[N + 1];
-        int curr_bound = 0;
-        Arrays.fill(visited, false);
-
-        // compute initial bound
-        for (int i = 0; i < N; i++)
-            curr_bound += firstMin(adj, i) + secondMin(adj, i);
-        curr_bound = (curr_bound + 1) / 2;
-
+    
+    static void solveTSP(int[][] graph) {
+        n = graph.length;
+        visited = new boolean[n];
+        bestPath = new int[n + 1];
+        
+        int bound = 0;
+        for (int i = 0; i < n; i++) {
+            bound += getMinEdge(graph, i, false) + getMinEdge(graph, i, true);
+        }
+        bound = (bound + 1) / 2;
+        
+        int[] path = new int[n];
+        path[0] = 0;
         visited[0] = true;
-        curr_path[0] = 0;
-
-        TSPRec(adj, curr_bound, 0, 1, curr_path);
+        solve(graph, path, 1, 0, bound);
     }
-
+    
     public static void main(String[] args) {
         int[][] adj = {
-            { 0, 10, 15, 20 },
-            { 10, 0, 35, 25 },
-            { 15, 35, 0, 30 },
-            { 20, 25, 30, 0 }
+            {0, 10, 15, 20},
+            {10, 0, 35, 25},
+            {15, 35, 0, 30},
+            {20, 25, 30, 0}
         };
+        
         solveTSP(adj);
-        System.out.printf("Minimum cost : %d\n", final_res);
-        System.out.print("Path Taken : ");
-        for (int i = 0; i <= N; i++) {
-            System.out.print(final_path[i] + " ");
-        }
-        System.out.println();
+        System.out.println("Min cost: " + minCost);
+        System.out.println("Path: " + Arrays.toString(bestPath));
     }
 }
-

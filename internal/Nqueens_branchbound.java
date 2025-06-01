@@ -1,7 +1,7 @@
 package internal;
 
 // Branch and bound
-public class Nqueens {
+public class Nqueens_branchbound {
     static int N;
     static int[] pos;
     static boolean[] cols, diag1, diag2;

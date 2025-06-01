@@ -4,15 +4,6 @@ public class GraphColoring {
     private final int V = 4;
     private int[] color = new int[V];
     
-    // Check if vertex v can be colored with color c
-    private boolean isSafe(int v, int[][] graph, int c) {
-        for (int u = 0; u < V; u++) {
-            if (graph[v][u] == 1 && color[u] == c) {
-                return false;
-            }
-        }
-        return true;
-    }
     
     // Recursive backtracking to color vertices
     private boolean solve(int[][] graph, int m, int v) {
@@ -22,7 +13,7 @@ public class GraphColoring {
         }
         
         for (int c = 1; c <= m; c++) {
-            if (isSafe(v, graph, c)) {
+            if (isSafe(graph,v, c)) {
                 color[v] = c;
                 if (solve(graph, m, v + 1)) {
                     return true;
@@ -33,6 +24,15 @@ public class GraphColoring {
         return false;
     }
     
+    // Check if vertex v can be colored with color c
+    private boolean isSafe(int[][] graph,int v, int c) {
+        for (int u = 0; u < V; u++) {
+            if (graph[v][u] == 1 && color[u] == c) {
+                return false;
+            }
+        }
+        return true;
+    }
     // Main method to solve graph coloring
     public boolean colorGraph(int[][] graph, int m) {
         if (solve(graph, m, 0)) {
