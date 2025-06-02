@@ -3,38 +3,25 @@ package internal;
 import java.util.*;
 
 public class GraphColoring {
-    
-    static boolean colorGraph(int[][] graph, int colors) {
-        int n = graph.length;
-        int[] color = new int[n];
-        return solve(graph, colors, 0, color);
-    }
-    
-    static boolean solve(int[][] graph, int maxColors, int vertex, int[] color) {
-        if (vertex == graph.length) {
-            System.out.println("Solution: " + Arrays.toString(color));
+    static boolean solve(int[][] g, int[] color, int v, int k) { //c: color, k: maxcolors
+        if (v == g.length) {
+            System.out.println(Arrays.toString(color));
             return true;
         }
         
-        for (int c = 1; c <= maxColors; c++) {
-            if (isSafe(graph, vertex, c, color)) {
-                color[vertex] = c;
-                if (solve(graph, maxColors, vertex + 1, color)) {
-                    return true;
-                }
-                color[vertex] = 0; // backtrack
+        for (int c = 1; c <= k; c++) {
+            boolean safe = true;
+            for (int i = 0; i < g.length && safe; i++) {
+                if (g[v][i] == 1 && color[i] == c) safe = false;
+            }
+            
+            if (safe) {
+                color[v] = c;
+                if (solve(g, color, v + 1, k)) return true;
+                color[v] = 0;
             }
         }
         return false;
-    }
-    
-    static boolean isSafe(int[][] graph, int vertex, int c, int[] color) {
-        for (int i = 0; i < graph.length; i++) {
-            if (graph[vertex][i] == 1 && color[i] == c) {
-                return false;
-            }
-        }
-        return true;
     }
     
     public static void main(String[] args) {
@@ -44,9 +31,10 @@ public class GraphColoring {
             {1, 1, 0, 1},
             {1, 0, 1, 0}
         };
+        int[] color = new int[graph.length];
         
-        if (!colorGraph(graph, 3)) {
-            System.out.println("No solution exists");
+        if (!solve(graph, color, 0, 3)) {
+            System.out.println("No solution");
         }
     }
 }
